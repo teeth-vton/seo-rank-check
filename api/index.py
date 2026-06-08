@@ -17,8 +17,8 @@ async def get_rank(keyword: str):
         run_input = {"queries": keyword, "resultsPerPage": 20, "maxPagesPerQuery": 1}
         run = client.actor("apify/google-search-scraper").call(run_input=run_input)
         
-        # FIX: Use dot notation for object properties instead of subscripts
-        dataset_id = run.get("defaultDatasetId") if isinstance(run, dict) else run.default_dataset_id
+        # Access attributes directly (Apify Python SDK uses attributes, not dict keys)
+        dataset_id = run.default_dataset_id
         
         # Fetch results
         dataset_client = client.dataset(dataset_id)
@@ -27,7 +27,7 @@ async def get_rank(keyword: str):
         if not results:
             return {"rank": "No results found"}
 
-        # Search for your domain
+        # Search for domain
         organic_results = results[0].get("organicResults", [])
         for pos, item in enumerate(organic_results, 1):
             if "ultimatesmiledesign.com" in item.get("url", ""):
