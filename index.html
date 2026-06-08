@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Ultimate SEO Rank Auditor</h2>
+    <textarea id="keywords" rows="5" style="width:100%" placeholder="Paste keywords here, one per line"></textarea>
+    <button onclick="checkRanks()">Check Ranks</button>
+    <div id="results"></div>
+
+    <script>
+        async function checkRanks() {
+            const lines = document.getElementById('keywords').value.split('\n');
+            const output = document.getElementById('results');
+            output.innerHTML = "Checking...";
+            
+            let table = "<table border='1'><tr><th>Keyword</th><th>Rank</th></tr>";
+            
+            for (let keyword of lines) {
+                if(!keyword.trim()) continue;
+                // This calls your API
+                let response = await fetch(`/api/index?keyword=${encodeURIComponent(keyword)}`);
+                let data = await response.json();
+                table += `<tr><td>${keyword}</td><td>${data.rank}</td></tr>`;
+            }
+            table += "</table>";
+            output.innerHTML = table;
+        }
+    </script>
+</body>
+</html>
