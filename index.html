@@ -5,7 +5,7 @@
     <textarea id="keywords" rows="5" style="width:100%" placeholder="Paste keywords here, one per line"></textarea>
     <br><br>
     <button onclick="checkRanks()">Check Ranks</button>
-    <button id="copyBtn" onclick="copyToClipboard()" style="display:none; background-color: #4CAF50; color: white;">Copy for Sheets</button>
+    <button id="copyBtn" onclick="copyToClipboard()" style="display:none; background-color: #4CAF50; color: white;">Copy to Sheets</button>
     
     <div id="results" style="margin-top:20px;"></div>
 
@@ -41,14 +41,14 @@
         }
 
         function copyToClipboard() {
-            // This format makes it paste perfectly into Excel/Sheets columns
-            let tsvContent = "Keyword\tRank\tRanking URL\n";
+            // Only copies Keyword and Rank. URL is excluded from copy.
+            let tsvContent = "Keyword\tRank\n";
             lastResults.forEach(res => {
-                tsvContent += `${res.keyword}\t${res.rank}\t${res.url}\n`;
+                tsvContent += `${res.keyword}\t${res.rank}\n`;
             });
 
             navigator.clipboard.writeText(tsvContent).then(() => {
-                alert("Data copied! Now just paste it directly into your Google Sheet.");
+                alert("Copied Keyword and Rank to clipboard! Just paste into Google Sheets.");
             });
         }
     </script>
