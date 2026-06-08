@@ -12,6 +12,7 @@ async def get_rank(keyword: str):
     
     try:
         client = ApifyClient(token)
+        # Using countryCode "in" for India
         run_input = {
             "queries": keyword, 
             "resultsPerPage": 20, 
@@ -29,11 +30,12 @@ async def get_rank(keyword: str):
 
         organic_results = results[0].get("organicResults", [])
         
+        # Checking if your domain appears in the results
         target_domain = "ultimatesmiledesign.com"
         for pos, item in enumerate(organic_results, 1):
             url = item.get("url", "").lower()
             if target_domain in url:
-                # Return BOTH rank and the specific URL found
+                # Returns the position (rank) and the specific URL found
                 return {"rank": pos, "url": item.get("url")}
         
         return {"rank": "Not in Top 20", "url": "-"}
