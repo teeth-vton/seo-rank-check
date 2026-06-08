@@ -1,33 +1,55 @@
 <!DOCTYPE html>
 <html>
-<body>
+<body style="font-family: sans-serif; padding: 20px;">
     <h2>Ultimate SEO Rank Auditor</h2>
     <textarea id="keywords" rows="5" style="width:100%" placeholder="Paste keywords here, one per line"></textarea>
     <br><br>
     <button onclick="checkRanks()">Check Ranks</button>
+    <button id="copyBtn" onclick="copyToClipboard()" style="display:none; background-color: #4CAF50; color: white;">Copy for Sheets</button>
+    
     <div id="results" style="margin-top:20px;"></div>
 
     <script>
+        let lastResults = [];
+
         async function checkRanks() {
-            const lines = document.getElementById('keywords').value.split('\n');
+            const lines = document.getElementById('keywords').value.split('\n').filter(k => k.trim() !== "");
             const output = document.getElementById('results');
             output.innerHTML = "Checking... please wait.";
+            document.getElementById('copyBtn').style.display = "none";
             
-            let html = "<table border='1' cellpadding='10'><tr><th>Keyword</th><th>Rank</th></tr>";
-            
-            for (let keyword of lines) {
-                if(!keyword.trim()) continue;
+            const fetchPromises = lines.map(async (keyword) => {
                 try {
-                    // This matches the rewrite in vercel.json
                     let response = await fetch(`/api/index?keyword=${encodeURIComponent(keyword)}`);
                     let data = await response.json();
-                    html += `<tr><td>${keyword}</td><td>${data.rank || "Error"}</td></tr>`;
+                    return { keyword, rank: data.rank, url: data.url };
                 } catch (err) {
-                    html += `<tr><td>${keyword}</td><td>Fetch Failed</td></tr>`;
+                    return { keyword, rank: "Error", url: "-" };
                 }
-            }
+            });
+
+            lastResults = await Promise.all(fetchPromises);
+
+            let html = "<table border='1' cellpadding='10' style='border-collapse: collapse; width: 100%;'><tr><th>Keyword</th><th>Rank</th><th>Ranking URL</th></tr>";
+            lastResults.forEach(res => {
+                html += `<tr><td>${res.keyword}</td><td>${res.rank}</td><td>${res.url}</td></tr>`;
+            });
             html += "</table>";
+            
             output.innerHTML = html;
+            document.getElementById('copyBtn').style.display = "inline-block";
+        }
+
+        function copyToClipboard() {
+            // This format makes it paste perfectly into Excel/Sheets columns
+            let tsvContent = "Keyword\tRank\tRanking URL\n";
+            lastResults.forEach(res => {
+                tsvContent += `${res.keyword}\t${res.rank}\t${res.url}\n`;
+            });
+
+            navigator.clipboard.writeText(tsvContent).then(() => {
+                alert("Data copied! Now just paste it directly into your Google Sheet.");
+            });
         }
     </script>
 </body>
