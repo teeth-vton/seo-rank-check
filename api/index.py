@@ -1,12 +1,16 @@
 from fastapi import FastAPI
-from apify_client import ApifyClient
 import os
 
-app = FastAPI()
-
-# Ensure APIFY_TOKEN is set in Vercel Environment Variables
-client = ApifyClient(os.getenv("APIFY_TOKEN"))
-
+# Put the import INSIDE the function to see the error in the logs 
+# instead of crashing the whole server
+def get_rank_from_apify(keyword):
+    from apify_client import ApifyClient
+    token = os.getenv("APIFY_TOKEN")
+    if not token:
+        return "Error: Token Missing"
+    
+    client = ApifyClient(token)
+    # ... rest of your code ...
 @app.get("/api/get-rank")
 async def get_rank(keyword: str):
     try:
