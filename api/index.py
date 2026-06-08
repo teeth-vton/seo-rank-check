@@ -12,12 +12,12 @@ async def get_rank(keyword: str):
     
     try:
         client = ApifyClient(token)
-        # Added countryCode for India (IN)
+        # Use lowercase 'in' for India
         run_input = {
             "queries": keyword, 
             "resultsPerPage": 20, 
             "maxPagesPerQuery": 1,
-            "countryCode": "IN", 
+            "countryCode": "in", 
             "languageCode": "en"
         }
         
@@ -26,23 +26,22 @@ async def get_rank(keyword: str):
         results = dataset_client.list_items().items
         
         if not results:
-            return {"rank": "No Results Found by Scraper"}
+            return {"rank": "No Results Found"}
 
         organic_results = results[0].get("organicResults", [])
         
-        # DEBUG: Print found URLs to Vercel Logs so you can see what is happening
-        found_urls = [item.get("url", "") for item in organic_results]
-        print(f"DEBUG: Scraper found these URLs: {found_urls}")
-
-        # Improved matching: Check if domain exists in URL without being picky about 'www'
-        target_domain = "ultimatesmiledesign.com"
+        # LOGGING: This will appear in your Vercel Function Logs
+        print(f"Scraper data for '{keyword}': Found {len(organic_results)} results.")
         
+        # Check matching
+        target_domain = "ultimatesmiledesign.com"
         for pos, item in enumerate(organic_results, 1):
             url = item.get("url", "").lower()
             if target_domain in url:
                 return {"rank": pos}
         
-        return {"rank": "Not in Top 20 (Found: " + str(found_urls[:3]) + " )"}
+        return {"rank": "Not in Top 20"}
         
     except Exception as e:
+        # This will show the actual API error in your browser if something breaks
         return {"rank": f"Error: {str(e)}"}
