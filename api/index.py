@@ -1,7 +1,7 @@
 from apify_client import ApifyClient
 
-# 1. Initialize the Apify client with Pragg's token
-client = ApifyClient("apify_api_Xoeye8Y2byl7MVeNpuCg7GnTrwsoCP2jOVUF")
+import os
+client = ApifyClient(os.getenv("APIFY_TOKEN"))
 
 def get_rank_from_apify(keyword):
     # This prepares the actor call to the Google Search Scraper
